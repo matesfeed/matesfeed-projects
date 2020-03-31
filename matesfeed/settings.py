@@ -28,7 +28,7 @@ SECRET_KEY = '#s!w+(du5c9ex$)+m7(-0yib5&4at@l^o9*+$10xthi5$%cf2%'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['matesfeed-projects.herokuapp.com']
 
 
 # Application definition
