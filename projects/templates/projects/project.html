@@ -1,0 +1,371 @@
+{% extends 'projects/template.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% block style %}
+<script src="https://kit.fontawesome.com/7b3e632a6c.js" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="{% static 'projects/project.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="project-card">
+    <div class="card-body">
+        <div class="bookmark-icon" project-id="{{project.id}}">
+            {% if project.id in projects_bookmarked %}
+            <i class="fas fa-bookmark"></i>
+            {% else %}
+            <i class="far fa-bookmark"></i>
+            {% endif %}
+          </div>
+        <h4 class="card-title">
+        {% if not project.is_active %}<i class="fas fa-check-circle mr-2" title="author marked this project as complete"></i>{% endif %}
+        {{ project.title|title }}
+        </h4>
+        <h6 class="card-subtitle mb-2 text-muted">Created by <a href="/users/profile/{{project.id}}/">{{project.author}}</a> on {{ project.created_time }} | <b>Last modified on {{ project.last_modified }}</b></h6>
+        <hr>
+        <h5>Technology / Languages used</h5>
+        <span class="card-subtitle text-muted">Click on the below hashtags to go the respective references pages</span>
+        <ul class="list-inline project-languages mt-2">
+            {% for lang in project.language %}
+            <li class="list-inline-item"><a href="/resources/filter/lang/{{lang}}">#{{lang}}</a></li>
+            {% endfor %}
+        </ul>
+        {% if project.description %}
+            <h5>Description</h5>
+            <p>{{project.description}}</p>
+        {% endif %}
+
+        <div class="developers-wrapper">
+            <div class="developers-info">
+                {% if developers_len != 0 %}
+                <p><b>{{developers_len}}</b> developers along with <b>{{project.author}}</b> are currently working on this project</p>
+                {% else %}
+                <p>The project has no active developer except the {{project.author}}</p>
+                {% endif %}
+            </div>
+
+            {% if project.author == user %}
+            <ul class="list-inline project-admin-header-btns">
+                <li class="list-inline-item">
+                    <button class="btn btn-sm btn-info invite-status-btn">Invites Status</button>
+                </li>
+                <li class="list-inline-item">
+                    <a href="/users/developers/?id={{project.id}}" role="button" class="btn-info btn-sm btn">Invite Developers</a>
+                </li>
+                <li class="list-inline-item">
+                    <a href="/resources/project_resources/{{project.id}}/" role="button" class="btn-info btn-sm btn">Resources</a>
+                </li>
+                <li class="list-inline-item">
+                    <button class="btn-info btn-sm btn project-developers-list-btn">Developers</button>
+                </li>
+                <li class="list-inline-item">
+                    <button class="btn-info btn-sm btn project-requests-list-btn">Requests</button>
+                </li>
+                <li class="list-inline-item">
+                    {% if not project.is_active %}
+                        <a href="/projects/restart_project/{{project.id}}/" class="btn-success btn-sm btn mark-project-complete-btn">
+                            <span title="restart project">Start Again</span>
+                        </a>
+                    {% else %}
+                        <a href="/projects/end_project/{{project.id}}/" class="btn-success btn-sm btn mark-project-complete-btn">
+                            <span title="Mark Project as Complete">Mark Complete</span>
+                        </a>
+                    {% endif %}
+                </li>
+            </ul>
+
+            {% else %}
+            <ul class="list-inline normal-user-header-btns">
+                <li class="list-inline-item">
+                        <a href="/resources/project_resources/{{project.id}}/" role="button" class="btn-info btn-sm btn">Resources</a>
+                        {% if user.id in project.developers_requested %}
+                        <a href="/users/projects_invited/" role="button" class="btn btn-sm btn-success">Requested</a>
+                        {% elif user.id in requests_users_id_list %}
+                        <button class="btn-info btn-sm btn project-request-btn" user-id="{{user.id}}" project-id="{{project.id}}">
+                            Request Pending
+                        </button>
+                        {% elif user.id in ignored_users_id_list %}
+                        <button class="btn-info btn-sm btn project-request-btn" user-id="{{user.id}}" project-id="{{project.id}}">
+                            Request Pending
+                        </button>
+                        {% elif user.id in rejected_users_id_list %}
+                        <button class="btn-danger btn btn-sm">
+                            Request Rejected
+                        </button>
+                        {% elif user.id in developers_users_id_list %}
+                        <button class="btn-success btn-sm btn" title="Now you are a developer for this project">
+                            <i class="fas fa-user-tag mr-2"></i>Developer
+                        </button>
+                        {% else %}
+                        <button class="btn-info btn-sm btn project-request-btn" user-id="{{user.id}}" project-id="{{project.id}}">
+                            Request
+                        </button>
+                        {% endif %}
+                </li>
+                <li class="list-inline-item">
+                    <button class="btn-info btn-sm btn project-developers-list-btn">Developers</button>
+                </li>
+                {% if is_project_developer %}
+                <li class="list-inline-item">
+                    <button class="btn-warning btn-sm btn leave-project-btn" user-id="{{user.id}}" project-id="{{project.id}}">
+                        Leave project
+                    </button>
+                </li>
+                {% endif %}
+            </ul>
+            {% endif %}
+        </div>
+        
+        {% if is_project_developer %}
+        <div class="issues">
+            <hr>
+            {% if issues_exist %}
+            <h4>Issues</h4>
+
+            <div class="issues-header">
+                <div class="issues-header-text">Your project is working fine!</div>
+                <div class="add-issue-btn"><i class="far fa-plus-square mr-2"></i>Add Issue</div>
+            </div>
+            <br>
+
+            <ul class="list-group">
+                <li class="list-group-item issues-container">
+                    <div class="issues-type-header">New Issues<span class="badge badge-secondary">{{new_issues_count}}</span></div>
+                    <ul class="list-group issues-list">
+                        <hr>
+                        {% for issue in new_issues %}
+                        <li class="list-group-item issue-item">
+                            {{issue.issue_title}}
+                            <div class="issue-actions">
+                                <ul class="list-inline">
+                                    <li class="list-inline-item"><a href="/projects/issue-status/{{project.id}}/{{issue.id}}/1/"><i class="fas fa-play mx-1"></i>Start</a></li>
+                                    <li class="list-inline-item"><a href="/projects/issue-status/{{project.id}}/{{issue.id}}/10/"><i class="fas fa-archive mx-1"></i>Leave</a></li>
+                                    <li class="list-inline-item"><a href="/projects/issue-status/{{project.id}}/{{issue.id}}/2/"><i class="fas fa-check mx-1"></i>Check</a></li>
+                                </ul>
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </li>
+
+                <li class="list-group-item issues-container">
+                    <div class="issues-type-header">Working Issues
+                        <span class="badge badge-secondary">{{working_issues_count}}</span>
+                    </div>
+                    <ul class="list-group issues-list">
+                        <hr>
+                        {% for issue in working_issues %}
+                        <li class="list-group-item issue-item">
+                            {{issue.issue_title}}
+                            <div class="issue-actions">
+                                <ul class="list-inline">
+                                    <li class="list-inline-item"><a href="/projects/issue-status/{{project.id}}/{{issue.id}}/10/"><i class="fas fa-archive mx-1"></i>Leave</a></li>
+                                    <li class="list-inline-item"><a href="/projects/issue-status/{{project.id}}/{{issue.id}}/2/"><i class="fas fa-check mx-1"></i>Check</a></li>
+                                </ul>
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </li>
+
+                <li class="list-group-item issues-container">
+                    <div class="issues-type-header">Completed Issues<span class="badge badge-secondary">{{completed_issues_count}}</span></div>
+                    <ul class="list-group issues-list">
+                        <hr>
+                        {% for issue in completed_issues %}
+                        <li class="list-group-item issue-item">
+                            {{issue.issue_title}}
+                            <div class="issue-actions">
+                                <ul class="list-inline">
+                                    <li class="list-inline-item"><a href="/projects/issue-status/{{project.id}}/{{issue.id}}/1/"><i class="fas fa-redo mr-1"></i>Start Again</a></li>
+                                </ul>
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </li>
+
+                <li class="list-group-item issues-container">
+                    <div class="issues-type-header">Left Issues<span class="badge badge-secondary">{{left_issues_count}}</span></div>
+                    <ul class="list-group issues-list">
+                        <hr>
+                        {% for issue in left_issues %}
+                        <li class="list-group-item issue-item">
+                            {{issue.issue_title}}
+                            <div class="issue-actions">
+                                <ul class="list-inline">
+                                    <li class="list-inline-item"><a href="/projects/issue-status/{{project.id}}/{{issue.id}}/1/"><i class="fas fa-redo mx-1"></i>Start Again</a></li>
+                                    <li class="list-inline-item"><a href="/projects/issue-status/{{project.id}}/{{issue.id}}/2/"><i class="fas fa-check mx-1"></i>Check</a></li>
+                                </ul>
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </li>
+            </ul>
+            
+            {% else %}
+            <h4>Issues</h4>
+            <div class="issues-header">
+                <div class="issues-header-text"><h5>Looks like your project is static. Make it work!</h5></div>
+                <div class="add-issue-btn"><i class="far fa-plus-square mr-2"></i>Add Issue</div>
+            </div>
+            {% endif %}
+        
+        </div>
+        {% endif %}
+        {% if project.contact %}
+            <hr>
+            <div class="card-title">Contact</div>
+            <p>{{project.contact}}</p>
+        {% endif %}
+    </div>
+</div>
+<div class="project-developers-wrapper">
+    <div class="card">
+        <div class="card-body">
+            <div class="developers-wrapper-header">
+                <h6>Developers List</h6>
+                <div class="developers-wrapper-close-btn"><i class="fas fa-times mr-2"></i></div>
+            </div>
+            <br>
+            <hr>
+            {% if developers_len > 0 %}
+            <ul class="list-group">
+                {% for developer_id, developer_name in project.developers_list %}
+                    {% if str_user_id != developer_id %}
+                    <li class="list-group-item" developer-id="{{developer_id}}">
+                        {{developer_name}}
+                        <ul class="list-inline dev-actions">
+                            {% if developer_id in dev_requests_sent %}
+                            <li class="list-inline-item dev-action-btn">
+                                <i class="fas fa-user-minus mr-2" data-target-url="/users/cancel_dev_request/{{developer_id}}/" data-user-id="{{developer_id}}"></i>Cancel Request
+                            </li>
+                            {% elif developer_id in dev_requests_inbox %}
+                            <li class="list-inline-item dev-action-btn">
+                                <i class="fas fa-user-check mr-2" data-target-url="/users/accept_dev_request/{{developer_id}}/" data-user-id="{{developer_id}}"></i>Accept
+                            </li>
+                            <li class="list-inline-item dev-action-btn">
+                                <i class="fas fa-user-times mr-2" data-target-url="/users/reject_dev_request/{{developer_id}}/" data-user-id="{{developer_id}}"></i>Reject
+                            </li>
+                            {% elif developer_id in devs_connected %}
+                            <li class="list-inline-item dev-action-btn">
+                                <span><i class="fas fa-user-friends mr-2"></i>Connected</span>
+                                <i class="fas fa-user-minus ml-3 mr-2" data-target-url="/users/break_connection/{{developer_id}}/" data-user-id="{{developer_id}}"></i>Break Connection
+                            </li>
+                            {% else %}
+                            <li class="list-inline-item devs_connected dev-action-btn" >
+                                <i class="fas fa-user-plus mr-2" data-target-url="/users/send_dev_request/{{developer_id}}/" data-user-id="{{developer_id}}"></i>Send Request
+                            </li>
+                            {% endif %}
+                            {% if user == project.author and project.is_active %}
+                            <li class="list-inline-item kick-out-btn" data-dev-name="{{developer_name}}" data-dev-id="{{developer_id}}" data-project-id="{{project.id}}">
+                                <i class="fas fa-user-alt-slash mr-2"></i>Kick Out
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p>No developers.</p>
+            {% endif %}
+            
+        </div>
+    </div>
+</div>
+{% if project.author == user %}
+<div class="project-requests-wrapper">
+    <div class="card">
+        <div class="card-body">
+            <div class="requests-header">
+                <h5>Requests</h5>
+                <div class="requests-wrapper-close-btn"><i class="fas fa-times mr-2"></i></div>
+            </div>
+            <br>
+            <hr>
+            {% if requests_list %}
+                <ul class="list-group">
+                    {% for request_user_id, request_user_name in requests_list %}
+                    <li class="list-group-item request-item">
+                        <span user-id="{{request_user_id}}" project-id="{{project.id}}">{{request_user_name}}</span>
+                        <ul class="list-inline">
+                            <li class="list-inline-item">
+                                <button class="btn btn-sm btn-success request-btn" request-code="accept">Accept</button>
+                            </li>
+                            <li class="list-inline-item">
+                                <button class="btn btn-sm btn-danger request-btn" request-code="reject">Reject</button>
+                            </li>
+                            <li class="list-inline-item">
+                                <button class="btn btn-sm btn-warning request-btn" request-code="ignore">Ignore</button>
+                            </li>
+                        </ul>
+                    </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No requests</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endif %}
+<div class="card add-issue-form">
+    <div class="card-body">
+        <form action="/projects/add-issue/{{project.id}}/" method="POST">
+            {% csrf_token %}
+            {{issue_form|crispy}}
+            <button type="submit" class="btn btn-sm btn-info">Add Issue</button>
+            <button class="btn btn-sm btn-danger discard-issue-btn">Discard</button>
+        </form>
+    </div>
+</div>
+{% if user == project.author %}
+<div class="invite-status-wrapper card">
+    <div class="card-body">
+        <div class="invites-wrapper-close-btn">
+            <i class="fas fa-times"></i>
+        </div>
+        <h4 class="card-title">Invites Status</h4>
+        {% if invites_pending|length > 0 %}
+        <hr>
+        <h5>Invites Pending</h5>
+        <ul class="list-group">
+            {% for dev in invites_pending %}
+            <li class="list-group-item">
+                <a href="/users/profile/{{dev.user.id}}/">{{dev.user.username}}</a>
+                <ul class="list-inline">
+                    <li class="list-inline-item cancel-invite" data-project-id="{{project.id}}" data-user-id="{{dev.user.id}}"><i class="fas fa-times mr-2"></i>Cancel Request</li>
+                </ul>
+            </li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+
+        {% if invites_accepted|length > 0 %}
+        <hr>
+        <h5>Invites Accepted</h5>
+        <ul class="list-group">
+            {% for dev in invites_accepted %}
+            <li class="list-group-item"><a href="/users/profile/{{dev.user.id}}/">{{dev.user.username}}</a></li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+
+        {% if invites_rejected|length > 0 %}
+        <hr>
+        <h5>Invites Rejected</h5>
+        <ul class="list-group">
+            {% for dev in invites_rejected %}
+            <li class="list-group-item"><a href="/users/profile/{{dev.user.id}}/">{{dev.user.username}}</a></li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block script %}
+<script src="{% static 'projects/project.js' %}"></script>
+{% endblock %}

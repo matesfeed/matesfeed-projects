@@ -1,0 +1,77 @@
+{% extends 'users/base.html' %}
+{% load static %}
+{% block style %}
+<style>
+.list-group{
+    width: 80%;
+    margin: 20px auto;
+}
+.list-group-item a{
+    color: black;
+    text-decoration: none;
+    display: block;
+    float: left;
+}
+.list-group-item:hover{
+    background: #eee;
+}
+.list-group-item > .dev-actions{
+    float: right;
+}
+.list-inline-item, .invite-dev-btn{
+    cursor: pointer;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<ul class="list-group">
+    {% if devs|length > 0 %}
+        <p>Users found with the username {{keyword}}</p>
+        {% for dev in devs %}
+        <li class="list-group-item">
+            <a href="/users/profile/{{dev.user.id}}/">{{dev.user.username}}</a>
+            <div class="dev-actions">
+                <ul class="list-inline">
+                    {% if user == project.author and dev.user != user %}
+                    <li class="list-inline-item invite-dev-btn" data-user-id="{{dev.user.id}}" data-project-id="{{project_id}}" title="invite to the project">
+                        <i class="fas fa-paper-plane mr-2"></i>Invite
+                    </li>
+                    {% endif %}
+                    {% if dev.user.id == user.id %}
+                    {% elif dev.user.id in profile.dev_requests_sent %}
+                    <li class="list-inline-item dev-action-btn">
+                        <i class="fas fa-user-minus mr-2" data-target-url="/users/cancel_dev_request/{{dev.user.id}}/" data-user-id="{{dev.user.id}}"></i>Cancel Request
+                    </li>
+                    {% elif dev.user.id in profile.devs_connected %}
+                    <li class="list-inline-item dev-action-btn">
+                        <span><i class="fas fa-user-friends mr-2"></i>Connected</span>
+                        <i class="fas fa-user-minus ml-3 mr-2" data-target-url="/users/break_connection/{{dev.user.id}}/" data-user-id="{{dev.user.id}}"></i>Break Connection
+                    </li>
+                    {% elif dev.user.id in profile.dev_requests_inbox %}
+                    <li class="list-inline-item dev-action-btn">
+                        <i class="fas fa-user-check mr-2" data-target-url="/users/accept_dev_request/{{dev.user.id}}/" data-user-id="{{dev.user.id}}"></i>Accept
+                    </li>
+                    <li class="list-inline-item dev-action-btn">
+                        <i class="fas fa-user-times mr-2" data-target-url="/users/reject_dev_request/{{dev.user.id}}/" data-user-id="{{dev.user.id}}"></i>Reject
+                    </li>
+                    {% else %}
+                    <li class="list-inline-item devs_connected dev-action-btn">
+                        <i class="fas fa-user-plus mr-2" data-target-url="/users/send_dev_request/{{dev.user.id}}/" data-user-id="{{dev.user.id}}"></i>Send Request
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </li>
+        {% endfor %}
+    {% else %}
+        <li class="list-group-item">
+            <p>No users found with the username {{keyword}}</p>
+        </li>
+    {% endif %}
+</ul>
+{% endblock %}
+
+{% block script %}
+<script src="{% static 'users/search_users.js' %}"></script>
+{% endblock %}

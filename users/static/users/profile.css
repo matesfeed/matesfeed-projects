@@ -1,0 +1,36 @@
+.profile-wrapper{
+    width: 90%;
+    margin: 20px auto;
+}
+.dev-action-btn{
+    cursor: pointer;
+}
+textarea{
+    max-height: 150px;
+}
+#div_id_first_name{
+    float: left;
+}
+#div_id_last_name{
+    float: right;
+}
+#div_id_interests{
+    margin-left: 20px;
+}
+.list-group-item{
+    box-sizing: border-box;
+}
+.list-group-item:hover{
+    background: #eee;
+}
+.list-group-item > a{
+    color: black;
+    display: inline-block;
+    width: 100%;
+}
+.list-group-item > a:hover{
+    text-decoration: none;
+}
+.list-group-item > a > span{
+    float: right;
+}

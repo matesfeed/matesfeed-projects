@@ -1,0 +1,8 @@
+.wrapper{
+    width: 80%;
+    margin: 0 auto;
+}
+
+.wrapper .list-group{
+    width: 100%;
+}

@@ -1,0 +1,118 @@
+{% extends 'users/base.html' %}
+{% load static %}
+
+{% block style %}
+<style>
+.developers-list{
+    width: 90%;
+    margin: 20px auto;
+}
+.developers-list > li{
+    margin-bottom: 10px;
+}
+.dev-actions{
+    float: right;
+}
+.dev-action-btn, .invite-dev-btn{
+    cursor: pointer;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+
+<ul class="list-group developers-list">
+    <h4>Community top developers list</h4>
+    {% for dev_profile in dev_profiles %}
+    <li class="list-group-item">
+        <ul class="list-inline dev-actions">
+            {% if user == project.author and dev_profile.user != user %}
+                <li class="list-inline-item invite-dev-btn" data-user-id="{{dev_profile.user.id}}" data-project-id="{{project_id}}" title="invite to the project">
+                    <i class="fas fa-paper-plane mr-2"></i>Invite
+                </li>
+            {% endif %}
+            {% if dev_profile.id == user_profile.id %}
+            {% elif dev_profile.user.id in user_profile.dev_requests_sent %}
+            <li class="list-inline-item dev-action-btn">
+                <i class="fas fa-user-minus mr-2" data-target-url="/users/cancel_dev_request/{{dev_profile.user.id}}/" data-user-id="{{dev_profile.user.id}}"></i>Cancel Request
+            </li>
+            {% elif dev_profile.user.id in user_profile.devs_connected %}
+            <li class="list-inline-item dev-action-btn">
+                <span><i class="fas fa-user-friends mr-2"></i>Connected</span>
+                <i class="fas fa-user-minus ml-3 mr-2" data-target-url="/users/break_connection/{{dev_profile.user.id}}/" data-user-id="{{dev_profile.user.id}}"></i>Break Connection
+            </li>
+            {% elif dev_profile.user.id in user_profile.dev_requests_inbox %}
+            <li class="list-inline-item dev-action-btn">
+                <i class="fas fa-user-check mr-2" data-target-url="/users/accept_dev_request/{{dev_profile.user.id}}/" data-user-id="{{dev_profile.user.id}}"></i>Accept
+            </li>
+            <li class="list-inline-item dev-action-btn">
+                <i class="fas fa-user-times mr-2" data-target-url="/users/reject_dev_request/{{dev_profile.user.id}}/" data-user-id="{{dev_profile.user.id}}"></i>Reject
+            </li>
+            {% else %}
+            <li class="list-inline-item devs_connected dev-action-btn">
+                <i class="fas fa-user-plus mr-2" data-target-url="/users/send_dev_request/{{dev_profile.user.id}}/" data-user-id="{{dev_profile.user.id}}"></i>Send Request
+            </li>
+            {% endif %}
+        </ul>
+        <a href="/users/profile/{{dev_profile.user.id}}/">{{dev_profile.user.username}}</a>
+        <p class="text-muted">{{dev_profile.bio|truncatewords:15}}</p>
+        <hr>
+        <ul class="list-inline">
+            <li class="list-inline-item">Projects Created <span class="badge badge-info">{{dev_profile.projects_created|length}}</span></li>
+            <li class="list-inline-item">Projects Working <span class="badge badge-info">{{dev_profile.projects_working|length}}</span></li>
+        </ul>
+    </li>
+    {% endfor %}
+</ul>
+{% endblock %}
+
+{% block script %}
+<script>
+    window.onload = function(){
+        $('.dev-action-btn').on('click', function(){
+            var parent = $(this);
+            var target = $(this).children('i');
+            var user_id = $(target).attr('data-user-id');
+            var url = $(target).attr('data-target-url');
+    
+            $.ajax({
+                url: url,
+                success: function(response){
+                    if(response == "send"){
+                        $(parent).html('<i class="fas fa-user-minus mr-2" data-target-url="/users/cancel_dev_request/' + user_id + '/" data-user-id="' + user_id + '"></i>Cancel Request');
+                    }else if(response == "cancelled"){
+                        $(parent).html('<i class="fas fa-user-plus mr-2" data-target-url="/users/send_dev_request/' + user_id + '/" data-user-id="' + user_id + '"></i>Send Request');
+                    }else if(response == "accepted"){
+                        $(parent).siblings('li').remove();
+                        $(parent).html('<span><i class="fas fa-user-friends mr-2"></i>Connected</span><i class="fas fa-user-minus ml-3 mr-2" data-target-url="/users/break_connection/' + user_id + '/" data-user-id="' + user_id + '"></i>Break Connection');
+                    }else if(response == "rejected"){
+                        $(parent).siblings('li').remove();
+                        $(parent).remove();
+                    }else if(response == "broke"){
+                        $(parent).html('<i class="fas fa-user-plus mr-2" data-target-url="/users/send_dev_request/' + user_id + '/" data-user-id="' + user_id + '"></i>Send Request');
+                    }
+                }
+            })
+        });
+
+        $('.invite-dev-btn').on('click', function(){
+            var dev_id = $(this).attr('data-user-id');
+            var project_id = $(this).attr('data-project-id');
+
+            var invite = confirm('Sure want to invite the user?');
+            if(invite){
+                $.ajax({
+                    url: '/projects/invite_devs/',
+                    data: {
+                        'dev_id': dev_id,
+                        'project_id': project_id
+                    },
+                    success: function(response){
+                        alert(response);
+                    }
+                })
+            }
+        })
+    }
+</script>
+{% endblock %}

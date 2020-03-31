@@ -1,0 +1,127 @@
+{% extends 'users/base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block style %}
+<link rel="stylesheet" href="{% static 'users/profile.css' %}">
+{% endblock %}
+{% block content %}
+  {% if not message %}
+    <div class="profile-wrapper">
+      <div class="profile-header">
+
+        <div class="profile-header-info">
+          <h4><i class="fas fa-house-user mr-2"></i>{{user.username}}</h4>
+          {% if profile_exist %}
+          <p>Feel free to update your profile here at any time.</p>
+          {% else %}
+          <p>Please add your info it hardly takes a minute.</p>
+          {% endif %}
+        </div>
+       
+        <hr>
+      </div>
+      <form action="/users/profile/" method="POST" class="">
+        {% csrf_token %}
+        {{form|crispy}}
+        <p><b>Contact: {{email}}</b></p>
+
+        <hr>
+        <h5>Dev Connection</h5>
+        <ul class="list-group">
+          <li class="list-group-item">
+            <a href="/users/devs_connected/">
+              Devs Connected
+              <span class="badge badge-info">{{ profile.devs_connected|length }}</span>
+            </a>
+          </li>
+          <li class="list-group-item">
+            <a href="/users/dev_requests_inbox/">
+              Devs Requests Pending
+              <span class="badge badge-info">{{ profile.dev_requests_inbox|length }}</span>
+            </a>
+          </li>
+          <li class="list-group-item">
+            <a href="/users/dev_requests_sent/">
+              Devs Requests Sent
+              <span class="badge badge-info">{{ profile.dev_requests_sent|length }}</span>
+            </a>
+          </li>
+        </ul>
+        <hr>
+        <h5>Statistics of your account</h5>
+        <hr>
+        <ul class="list-group mb-2">
+          <li class="list-group-item">
+            <a href="/users/projects_invited/">
+            Projects Invitations
+            <span class="badge badge-info">{{ profile.project_requests_inbox|length }}</span>
+            </a>
+          </li>
+          <li class="list-group-item">
+            <a href="/projects/projects_completed/{{user.id}}/">
+            Projects Completed
+            <span class="badge badge-info">{{ profile.projects_completed|length }}</span>
+            </a>
+          </li>
+          <li class="list-group-item">
+            <a href="/projects/projects_created/{{user.id}}/">
+            Projects Created
+            <span class="badge badge-info">{{ profile.projects_created|length }}</span>
+            </a>
+          </li>
+          <li class="list-group-item">
+            <a href="/projects/show_user_working_projects/{{user.id}}/">
+            Projects Working
+            <span class="badge badge-info">{{ profile.projects_working|length }}</span>
+            </a>
+          </li>
+          <li class="list-group-item">
+            <a href="/projects/show_user_requested_projects/{{user.id}}/">
+            Projects Requested
+            <span class="badge badge-info">{{ profile.projects_requested|length }}</span>
+            </a>
+          </li>
+          <li class="list-group-item">
+            <a href="/projects/show_user_bookmarked_projects/{{user.id}}/">
+            Bookmarked Projects
+            <span class="badge badge-info">{{ profile.projects_bookmarked|length }}</span>
+            </a>
+          </li>
+          <li class="list-group-item">
+            <a href="/resources/resources_added/{{user.id}}/">
+            Resources Uploaded
+            <span class="badge badge-info">{{ profile.resources_added|length }}</span>
+            </a>
+          </li>
+          <li class="list-group-item">
+            <a href="/resources/show_user_resources_bookmarked/{{user.id}}/">
+            Bookmarked Resources
+            <span class="badge badge-info">{{ profile.resources_bookmarked|length }}</span>
+            </a>
+          </li>
+          <li class="list-group-item">
+            <a href="/projects/user_requests_rejected/{{user.id}}/">
+            Projects Requests Rejected
+            <span class="badge badge-info">{{ profile.projects_rejected|length }}</span>
+            <div class="text-muted">Projects rejected will be visible only for you. These are displayed only to motivate you.</div>
+            </a>
+          </li>
+          
+        </ul>
+        <button class="btn btn-sm btn-info mt-2" type="submit">Update Profile</button>
+      </form>
+    </div>
+  {% else %}
+    <div class="card">
+      <div class="card-body">
+        {{message}}
+      </div>
+    </div>
+  {% endif %}
+{% endblock %}
+
+{% block script %}
+  <script src="{% static 'users/profile.js' %}"></script>
+{% endblock %}
+    

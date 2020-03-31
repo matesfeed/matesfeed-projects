@@ -1,0 +1,77 @@
+{% extends 'users/base.html' %}
+{% load static %}
+
+{% block style %}
+<style>
+.project_invites_wrapper{
+    width: 90%;
+    margin: 20px auto;
+}
+a, a:hover{
+    text-decoration: none;
+    color: black;
+}
+.list-group-item{
+    padding: 0;
+    padding: 10px 20px;
+    box-sizing: border-box;
+}
+.list-group-item:hover{
+    background: #eee;
+}
+.list-group-item > a{
+    display: block;
+    box-sizing: border-box;
+}
+.list-group-item > .list-inline{
+    float: right;
+}
+.list-inline-item{
+    cursor: pointer;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="project_invites_wrapper">
+    <h4>Project Invitations</h4>
+    <hr>
+    <ul class="list-group">
+        {% for project in projects %}
+        <li class="list-group-item">
+            <ul class="list-inline">
+                <li class="list-inline-item invite-action-btn" data-project-id="{{project.id}}" data-user-id="{{user.id}}" data-invite-action="accept"><i class="fas fa-check mr-2"></i>Accept</li>
+                <li class="list-inline-item invite-action-btn" data-project-id="{{project.id}}" data-user-id="{{user.id}}" data-invite-action="reject"><i class="fas fa-times mr-2"></i>Reject</li>
+            </ul>
+            <a href="/projects/{{project.id}}/">{{project.title}}</a>
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+    window.onload = function(){
+        $('.invite-action-btn').on('click', function(){
+            var invite_item = $(this);
+            var project_id = $(this).attr('data-project-id');
+            var user_id = $(this).attr('data-user-id');
+            var invite_action = $(this).attr('data-invite-action');
+
+            $.ajax({
+                url: '/users/handle_project_invite/',
+                data: {
+                    'project_id': project_id,
+                    'user_id': user_id,
+                    'invite_action': invite_action
+                },
+                success: function(response){
+                    alert(response);
+                    $(invite_item).parent('ul').parent('li').remove();
+                }
+            })
+        })
+    }
+</script>
+{% endblock %}

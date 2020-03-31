@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="https://kit.fontawesome.com/7b3e632a6c.js" crossorigin="anonymous"></script>
+    <style>
+      .main-card, .about-me-card{
+        width: 80%;
+        margin: 20px auto;
+      }
+      .followup-card{
+        width: 80%;
+        margin: 0 auto;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-around;
+      }
+      .followup-card > div{
+        flex-wrap: wrap;
+        min-width: 150px;
+        width: 33%;
+      }
+    </style>
+    <title>Hello, world!</title>
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+      <a class="navbar-brand" href="{% if user.is_authenticated %}/projects/{% else %}/{% endif %}">Matesfeed | Projects</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+  
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav ml-auto mr-2">
+          <li class="nav-item active">
+              <a href="/" class="nav-link">Home</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/projects/">Projects</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/resources/">Resources</a>
+          </li>
+          <li class="nav-item dropdown">
+            {% if user.is_authenticated %}
+              <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                {{user.username}}
+              </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                <a class="dropdown-item" href="/users/profile/">Profile</a>
+                <a class="dropdown-item" href="/accounts/logout/">Logout</a>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item" href="/accounts/password/change/">Reset Password</a>
+              </div>
+            {% else %}
+              <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Account
+              </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                <a class="dropdown-item" href="/accounts/login/">Log In</a>
+                <a class="dropdown-item" href="/accounts/signup/">Create Account</a>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item" href="/accounts/password/reset/">Forgot Password</a>
+              </div>
+            {% endif %}
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">About Us</a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+    <div class="card main-card">
+
+      <div class="card-body">
+        <h4 class="card-title">Matesfeed | Projects</h4>
+        <p class="card-text">Now a days working on open source projects might seem interesting, but it is very unclear about getting started and finding the resources related to the project.This site provides you a platform for getting involved in opensource projects, resources to get started and managing your personal projects. If you feel any problem please feel free to contact me.</p>
+      </div>
+    </div>
+
+    <div class="followup-card">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">Projects</h5>
+          <p class="card-text">Explore through the crazy amount of projects created by developers all around the world. Choose the projects which meets your interest and your skills.</p>
+          <a href="/projects/" class="btn btn-primary">Check Projects</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">Resources</h5>
+          <p class="card-text">Having good resources to get started is another important in developers life. Find best resources provided by the developers community.</p>
+          <a href="/resources/" class="btn btn-primary">Check Resources</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">Developers</h5>
+          <p class="card-text">If you want to level up your game, having developers who can help you in building your project.Find skillfull developers in the community and get started on your next billion dollars project.</p>
+          <a href="/users/developers/" class="btn btn-primary">Find Developers</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="about-me-card card">
+      <div class="card-body">
+        <h4 class="card-title">About Me</h4>
+        <p class="card-text">
+          Myself <b>Santosh</b> a normal developer who don't know how and where to spend his time productively but still exploring it. I like to work on web projects mostly. I am pursuing my B.Tech Engineering degree in the department of <b>Electrical and Electronics Communication Engineering, IIT Kharagpur.</b> I like to learn new things which I can use to make something that can help people in one way or the other. I like to play PUBG with my friends and listen to music in my free time. 
+          <li class="list-item"><i class="fas fa-laptop-code mr-2"></i>Check my other site <a href="https://matesfeed.herokuapp.com" target="_blank">Matesfeed</a></li>
+          <li class="list-item"><i class="far fa-envelope mr-2"></i>suryasantosh14523@gmail.com</li>
+        </p>
+      </div>
+    </div>
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+  </body>
+</html>

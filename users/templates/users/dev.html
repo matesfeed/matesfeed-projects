@@ -1,0 +1,74 @@
+{% extends 'users/base.html' %}
+{% load static %}
+
+{% block style %}
+<style>
+.list-group{
+    width: 80%;
+    margin: 20px auto;
+}
+.list-group > a{
+    display: block;
+    float: left;
+}
+.request-actions{
+    float: right;
+}
+.request-actions > li{
+    cursor: pointer;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+
+<ul class="list-group">
+    {% if requests_type == "inbox" %}
+        {% for dev in devs_list %}
+            <li class="list-group-item">
+                <a href="/users/profile/{{dev.id}}/">{{dev.username}}</a>
+                <ul class="list-inline request-actions">
+                    <li class="list-inline-item handle-request">
+                        <i class="fas fa-user-times mr-2" data-target-url="/users/accept_dev_request/{{dev.id}}/" data-dev-id="{{dev.id}}"></i>Accept Request
+                    </li>
+                    <li class="list-inline-item handle-request">
+                        <i class="fas fa-user-check mr-2"  data-target-url="/users/reject_dev_request/{{dev.id}}/" data-dev-id="{{dev.id}}"></i>Reject Request
+                    </li>
+                </ul>
+            </li>
+        {% endfor %}
+
+    {% elif requests_type == "sent" %}
+        {% for dev in devs_list %}
+            <li class="list-group-item">
+                <a href="/users/profile/{{dev.id}}/">{{dev.username}}</a>
+                <ul class="list-inline request-actions">
+                    <li class="list-inline-item handle-request">
+                        <i class="fas fa-user-minus mr-2" data-target-url="/users/cancel_dev_request/{{dev.id}}/" data-dev-id="{{dev.id}}"></i>Cancel Request
+                    </li>
+                </ul>
+            </li>
+        {% endfor %}
+
+    {% elif requests_type == "connected" %}
+        {% for dev in devs_list %}
+            <li class="list-group-item">
+                <a href="/users/profile/{{dev.id}}/">{{dev.username}}</a>
+                <ul class="list-inline request-actions">
+                    <li class="list-inline-item">
+                        <i class="fas fa-user-friends mr-2"></i>Connected
+                    </li>
+                    <li class="list-inline-item handle-request">
+                        <i class="fas fa-user-times mr-2" data-target-url="/users/break_connection/{{dev.id}}/" data-dev-id="{{dev.id}}"></i>Break Connection
+                    </li>
+                </ul>
+            </li>
+        {% endfor %}
+    {% endif %}
+
+</ul>
+{% endblock %}
+
+{% block script %}
+<script src="{% static 'users/dev.js/' %}"></script>
+{% endblock %}

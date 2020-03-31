@@ -1,0 +1,130 @@
+{% extends 'resources/template.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block style %}
+<script src="https://kit.fontawesome.com/7b3e632a6c.js" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="{% static 'resources/index.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="resources-filter-wrapper">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark mt-3">
+      <span class="navbar-brand">Filter Resources</span>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#filterResources" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+    
+      <div class="collapse navbar-collapse" id="filterResources">
+        <ul class="navbar-nav ml-auto mr-4">
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              User level
+            </a>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                {% for user_level_key, user_level_value in user_levels %}
+                    <a class="dropdown-item" href="/resources/filter/exp/{{user_level_value}}/">{{user_level_value}}</a>
+                {% endfor %}
+            </div>
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              Language / Technology
+            </a>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                {% for project_lang_key, project_lang_value in project_languages %}
+                    <a class="dropdown-item" href="/resources/filter/lang/{{project_lang_value}}/">{{project_lang_value}}</a>
+                {% endfor %}
+            </div>
+          </li>
+        </ul>
+        <form class="form-inline my-2 my-lg-0">
+          <input class="form-control mr-sm-2 form-control-sm" id="search-resources-input" type="search" placeholder="Search resources" aria-label="Search">
+          <button class="btn btn-outline-success my-2 my-sm-0 btn-sm" type="submit">Search</button>
+        </form>
+      </div>
+    </nav>
+  </div>
+<div class="wrapper">
+    <ul class="list-group resources-list" id="resources-list">
+      {% for resource in resources %}
+      <li class="list-group-item resource-item">
+          <ul class="list-inline resource-icon-actions">
+            {% if user_created_projects|length > 0 %}
+            <li class="list-inline-item add-resource-to-project-icon" data-resource-id="{{resource.id}}">
+              <i class="fas fa-folder-plus" title="add resource to the project"></i>
+            </li>
+            {% endif %}
+            {% if is_project_resources and is_developer %}
+            <li class="list-inline-item remove-resource-from-project-icon" data-resource-id="{{resource.id}}" data-project-id="{{project_id}}">
+              <i class="fas fa-folder-minus" title="remove resource from project"></i>
+            </li>
+            {% endif %}
+            <li class="list-inline-item bookmark-icon" resource-id="{{resource.id}}">
+              {% if resource.id in resources_bookmarked %}
+              <i class="fas fa-bookmark ml-2"></i>
+              {% else %}
+              <i class="far fa-bookmark ml-2"></i>
+              {% endif %}
+            </li>
+          </ul>
+          <h4>{{resource.title}}</h4>
+          <span class="badge badge-info">
+            {{resource.user_level}}
+          </span>
+          <hr>
+          <ul class="list-inline">
+            {% for tag in resource.tag %}
+                <li class="list-inline-item">#{{tag}}</li>
+            {% endfor %}
+          </ul>
+          <div class="card-subtitle text-muted my-1">
+            Created on {{resource.created_time}}
+          </div>
+          {% if resource.description != "No Description Found" and resource.description %}
+            <h6>Description</h6>    
+            <p class="card-text card-subtitle text-muted mb-2 resource-description">
+                {{resource.description}}
+            </p>
+          {% endif %}
+          
+          <a href="{{resource.link}}" class="btn btn-sm btn-outline-info" target="_blank">Check Link</a>
+      </li>
+      {% endfor %}
+    </ul>
+</div>
+
+{% if form %}
+<div class="card add-resource-form">
+    <div class="card-body">
+        <div class="card-title">
+            <h3>Add Resource Link</h6>
+            <span class="text-muted card-subtitle">Sorry! we don't support writing your own blog on our platform <b>yet</b>.</span>
+        </div>
+        <hr>
+        <form action="/resources/" method="POST">
+            {% csrf_token %}
+            {{form|crispy}}
+            <button type="submit" class="btn btn-info btn-sm">Add Resource</button>
+        </form>
+    </div>
+</div>
+<div class="add-resource-btn"><i class="fas fa-plus"></i></div>
+{% endif %}
+<div class="card add-resource-to-project-wrapper">
+  <div class="card-body">
+    <div class="close-add-resource-to-project-btn"><i class="fas fa-times"></i></div>
+    <h5 class="card-title">Select the project you want to add the resource to.</h5>
+    <hr>
+    <ul class="list-group">
+      {% for project_id, project_title in user_created_projects %}
+        <li class="list-group-item add-resource-to-project-btn" data-project-id="{{project_id}}">{{ project_title }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
+{% endblock %}
+
+{% block script %}
+<script src="{% static 'resources/index.js' %}" crossorigin="anonymous"></script>
+{% endblock %}
