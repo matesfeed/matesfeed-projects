@@ -1,1 +1,1 @@
-web: gunicorn matesfeed.wsgi
+web: gunicorn matesfeed.wsgi --log-file -
